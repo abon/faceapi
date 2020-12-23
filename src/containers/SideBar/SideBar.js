@@ -42,8 +42,8 @@ const SideBar = () => {
         videoRef.current
       );
       const displaySize = {
-        width: 600,
-        height: 800,
+        width: 550,
+        height: 400,
       };
 
       faceapi.matchDimensions(canvasRef.current, displaySize);
@@ -63,15 +63,15 @@ const SideBar = () => {
 
   return (
     <div>
-      <h1>video</h1>
+      <h1>How is your mood today?😊😊</h1>
       {/* <span>{init ? "Initializing" : "Ready"}</span> */}
       <div className="display-flex justify-content-center">
         <video
           ref={videoRef}
           autoPlay
           muted
-          height={400}
-          width={500}
+          height={520}
+          width={700}
           onPlay={handleVideoOnPlay}
         />
         <canvas ref={canvasRef} className="position-absolute" />

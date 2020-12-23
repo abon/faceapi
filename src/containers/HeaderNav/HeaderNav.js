@@ -34,22 +34,16 @@ export class HeaderNav extends React.Component {
                 />
               </Form.Field>
             </Form>
-          </Menu.Item>
-          {/* 5 */}
-          <Menu.Menu position="right">
+            <Menu.Item>
+              <Icon className="header-icon" name="microphone" size="large" />
+            </Menu.Item>
             <Menu.Item>
               {/* 6 */}
               <Icon className="header-icon" name="video camera" size="large" />
             </Menu.Item>
-            <Menu.Item>
-              <Icon className="header-icon" name="grid layout" size="large" />
-            </Menu.Item>
-            <Menu.Item>
-              <Icon className="header-icon" name="chat" size="large" />
-            </Menu.Item>
-            <Menu.Item>
-              <Icon className="header-icon" name="alarm" size="large" />
-            </Menu.Item>
+          </Menu.Item>
+          {/* 5 */}
+          <Menu.Menu position="right">
             {/* 7*/}
             <Menu.Item name="avatar">
               <Image src="https://via.placeholder.com/80x80" avatar />
