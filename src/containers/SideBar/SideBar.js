@@ -1,34 +1,83 @@
-import React from 'react';
-import SideBarItem from './SideBarItem/SideBarItem';
-import {Menu, Divider} from 'semantic-ui-react';
-import './SideBar.scss';
-import {SideBarHeader} from './SideBarHeader/SideBarHeader';
-import {Subscriptions} from './Subscriptions/Subscriptions';
-import {SideBarFooter} from './SideBarFooter/SideBarFooter';
+import React, { useState, useEffect, useRef } from "react";
+import * as faceapi from "face-api.js";
+import { resizeResults } from "face-api.js";
+import "./Side.css";
 
-export class SideBar extends React.Component {
-  render() {
-    return (
-      <Menu borderless vertical stackable fixed='left' className='side-nav'>
-        <SideBarItem path='/' label='Home' icon='home'/>
-        <SideBarItem path='/feed/trending' label='Trending' icon='fire'/>
-        <SideBarItem label='Followers' icon='spy'/>
-        <Divider/>
-        <SideBarHeader title='Library'/>
-        <SideBarItem label='History' icon='history'/>
-        <SideBarItem label='Watch later' icon='clock'/>
-        <SideBarItem label='Liked videos' icon='thumbs up'/>
-        <Divider/>
-        <Subscriptions/>
-        <SideBarHeader title='More from Youtube'/>
-        <SideBarItem label='Movies and Shows' icon='film'/>
-        <Divider/>
-        <SideBarItem label='Report history' icon='flag'/>
-        <SideBarItem label='Help' icon='help circle'/>
-        <SideBarItem label='Send feedback' icon='comment'/>
-        <Divider/>
-        <SideBarFooter/>
-      </Menu>
+const SideBar = () => {
+  const [init, setInit] = useState(false);
+  const videoRef = useRef();
+  const canvasRef = useRef();
+
+  useEffect(() => {
+    const loadModels = async () => {
+      const MODEL_URL = process.env.PUBLIC_URL + "/models";
+      setInit(true);
+      Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+      ]).then(startVideo);
+    };
+    loadModels();
+  }, []);
+
+  const startVideo = () => {
+    navigator.getUserMedia(
+      {
+        video: {},
+      },
+      (stream) => (videoRef.current.srcObject = stream),
+      (err) => console.log(err)
     );
-  }
-}
+  };
+
+  const handleVideoOnPlay = () => {
+    setInterval(async () => {
+      if (init) {
+        setInit(false);
+      }
+
+      canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(
+        videoRef.current
+      );
+      const displaySize = {
+        width: 600,
+        height: 800,
+      };
+
+      faceapi.matchDimensions(canvasRef.current, displaySize);
+      const detections = await faceapi
+        .detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+        .withFaceLandmarks()
+        .withFaceExpressions();
+
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+      canvasRef.current.getContext("2d").clearRect(0, 0, 900, 600);
+      faceapi.draw.drawDetections(canvasRef.current, detections);
+      faceapi.draw.drawFaceLandmarks(canvasRef.current, detections);
+      faceapi.draw.drawFaceExpressions(canvasRef.current, detections);
+      console.log(detections);
+    }, 100);
+  };
+
+  return (
+    <div>
+      <h1>video</h1>
+      {/* <span>{init ? "Initializing" : "Ready"}</span> */}
+      <div className="display-flex justify-content-center">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          height={400}
+          width={500}
+          onPlay={handleVideoOnPlay}
+        />
+        <canvas ref={canvasRef} className="position-absolute" />
+      </div>
+    </div>
+  );
+};
+
+export default SideBar;

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "face-api.js": "^0.22.2",
     "javascript-time-ago": "^2.0.13",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
